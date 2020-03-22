@@ -52,6 +52,8 @@ case $MODE in
         opam pin add --no-action -y js_of_ocaml-tyxml.dev -k path .
         opam pin add --no-action -y js_of_ocaml-toplevel.dev -k path .
 
+        opam pin add --no-action -y num https://github.com/hhugo/num.git#fix-bytes
+
         opam install -y --best-effort --deps-only $PACKAGES || true
         opam install -y cohttp-lwt-unix menhir ppx_expect yojson sexplib graphics odoc
         opam upgrade --yes

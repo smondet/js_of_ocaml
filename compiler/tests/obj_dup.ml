@@ -41,7 +41,7 @@ let%expect_test _ =
   |};
   [%expect {|
     true
-    true
+    false
     true
     true
     true

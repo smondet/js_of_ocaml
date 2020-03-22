@@ -36,14 +36,14 @@ class type json =
 
 let json : json Js.t = Unsafe.global##._JSON
 
-external unsafe_equals : 'a -> 'b -> bool = "caml_js_equals"
-
 external to_byte_MlBytes : js_string t -> string = "caml_js_to_byte_string"
 
 external to_byte_jsstring : 'a t -> js_string t = "caml_jsbytes_of_string"
 
 external create_int64_lo_mi_hi : int -> int -> int -> Int64.t
   = "caml_int64_create_lo_mi_hi"
+
+external unsafe_equals : 'a -> 'b -> bool = "caml_js_equals"
 
 let input_reviver =
   let reviver _this _key (value : Unsafe.any) : Obj.t =

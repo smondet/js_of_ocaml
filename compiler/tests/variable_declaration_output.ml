@@ -41,7 +41,7 @@ let%expect_test _ =
   print_var_decl program "symbol_op";
   [%expect
     {|
-    var ex = [0,5,runtime.caml_new_string("hello")];
+    var ex = [0,5,"hello"];
     var ax = [0,1,2,3,4];
     var bx = [254,1.,2.,3.,4.];
     var cx = [254,NaN,NaN,Infinity,- Infinity,0.,- 0.];

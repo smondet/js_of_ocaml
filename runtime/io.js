@@ -199,10 +199,10 @@ function caml_ml_set_channel_refill(chanid,f) {
 }
 
 //Provides: caml_ml_refill_input
-//Requires: caml_ml_bytes_length
+//Requires: caml_ml_string_length
 function caml_ml_refill_input (chan) {
   var str = chan.refill();
-  var str_len = caml_ml_bytes_length(str);
+  var str_len = caml_ml_string_length(str);
   if (str_len == 0) chan.refill = null;
   chan.file.write(chan.file.length(), str, 0, str_len);
   return str_len;
@@ -230,7 +230,7 @@ function caml_ml_input (chanid, s, i, l) {
 }
 
 //Provides: caml_input_value
-//Requires: caml_marshal_data_size, caml_input_value_from_string, caml_create_bytes, caml_ml_channels
+//Requires: caml_marshal_data_size, caml_input_value_from_bytes, caml_create_bytes, caml_ml_channels
 function caml_input_value (chanid) {
   var chan = caml_ml_channels[chanid];
 
@@ -244,7 +244,7 @@ function caml_input_value (chanid) {
   chan.file.read(chan.offset,buf,0,len);
 
   var offset = [0];
-  var res = caml_input_value_from_string(buf, offset);
+  var res = caml_input_value_from_bytes(buf, offset);
   chan.offset = chan.offset + offset[0];
   return res;
 }
@@ -346,18 +346,18 @@ function caml_ml_flush (chanid) {
 
 //Provides: caml_ml_output_bytes
 //Requires: caml_ml_flush,caml_ml_bytes_length
-//Requires: caml_create_bytes, caml_blit_bytes, caml_raise_sys_error, caml_ml_channels, caml_jsbytes_of_string
+//Requires: caml_create_bytes, caml_blit_bytes, caml_raise_sys_error, caml_ml_channels, caml_string_of_bytes
 function caml_ml_output_bytes(chanid,buffer,offset,len) {
   var chan = caml_ml_channels[chanid];
   if(! chan.opened) caml_raise_sys_error("Cannot output to a closed channel");
-  var string;
+  var bytes;
   if(offset == 0 && caml_ml_bytes_length(buffer) == len)
-    string = buffer;
+    bytes = buffer;
   else {
-    string = caml_create_bytes(len);
-    caml_blit_bytes(buffer,offset,string,0,len);
+    bytes = caml_create_bytes(len);
+    caml_blit_bytes(buffer,offset,bytes,0,len);
   }
-  var jsstring = caml_jsbytes_of_string(string);
+  var jsstring = caml_string_of_bytes(bytes);
   var id = jsstring.lastIndexOf("\n");
   if(id < 0)
     chan.buffer+=jsstring;
@@ -370,9 +370,9 @@ function caml_ml_output_bytes(chanid,buffer,offset,len) {
 }
 
 //Provides: caml_ml_output
-//Requires: caml_ml_output_bytes
+//Requires: caml_ml_output_bytes, caml_bytes_of_string
 function caml_ml_output(chanid,buffer,offset,len){
-  return caml_ml_output_bytes(chanid,buffer,offset,len);
+  return caml_ml_output_bytes(chanid,caml_bytes_of_string(buffer),offset,len);
 }
 
 //Provides: caml_ml_output_char

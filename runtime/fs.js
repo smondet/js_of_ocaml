@@ -244,7 +244,7 @@ function caml_create_file(name,content) {
 }
 
 //Provides: caml_read_file_content
-//Requires: resolve_fs_device, caml_raise_no_such_file, caml_create_bytes
+//Requires: resolve_fs_device, caml_raise_no_such_file, caml_create_bytes, caml_string_of_bytes
 function caml_read_file_content (name) {
   var root = resolve_fs_device(name);
   if(root.device.exists(root.rest)) {
@@ -252,7 +252,7 @@ function caml_read_file_content (name) {
     var len  = file.length();
     var buf  = caml_create_bytes(len);
     file.read(0,buf,0,len);
-    return buf
+    return caml_string_of_bytes(buf)
   }
   caml_raise_no_such_file(name);
 }

@@ -19,7 +19,7 @@
 
 //Provides: MlFakeDevice
 //Requires: MlFakeFile, caml_create_bytes
-//Requires: caml_raise_sys_error, caml_raise_no_such_file, caml_new_string, caml_string_of_array
+//Requires: caml_raise_sys_error, caml_raise_no_such_file, caml_new_string, caml_string_of_array, caml_bytes_of_string
 //Requires: MlBytes
 function MlFakeDevice (root, f) {
   this.content={};
@@ -32,7 +32,7 @@ MlFakeDevice.prototype.nm = function(name) {
 MlFakeDevice.prototype.lookup = function(name) {
   if(!this.content[name] && this.lookupFun) {
     var res = this.lookupFun(caml_new_string(this.root), caml_new_string(name));
-    if(res !== 0) this.content[name]=new MlFakeFile(res[1]);
+    if(res !== 0) this.content[name]=new MlFakeFile(caml_bytes_of_string(res[1]));
   }
 }
 MlFakeDevice.prototype.exists = function(name) {
@@ -100,17 +100,22 @@ MlFakeDevice.prototype.register= function (name,content){
     this.content[name] = new MlFakeFile(content);
   else if(content instanceof Array)
     this.content[name] = new MlFakeFile(caml_string_of_array(content));
-  else if(content.toString) {
-    var mlstring = caml_new_string(content.toString());
-    this.content[name] = new MlFakeFile(mlstring);
+  else if(typeof content == "string") {
+    var bytes = caml_bytes_of_string(content);
+    this.content[name] = new MlFakeFile(bytes);
   }
+  else if(content.toString) {
+    var bytes = caml_bytes_of_string(content.toString());
+    this.content[name] = new MlFakeFile(bytes);
+  }
+  else caml_raise_sys_error(this.nm(name) + " : registering file with invalid content type");
 }
 
 MlFakeDevice.prototype.constructor = MlFakeDevice
 
 //Provides: MlFakeFile
 //Requires: MlFile
-//Requires: caml_create_bytes, caml_ml_bytes_length,caml_blit_bytes
+//Requires: caml_create_bytes, caml_ml_bytes_length, caml_blit_bytes, caml_blit_string
 //Requires: caml_bytes_get
 function MlFakeFile(content){
   this.data = content;
@@ -132,7 +137,7 @@ MlFakeFile.prototype.write = function(offset,buf,pos,len){
     this.data = new_str;
     caml_blit_bytes(old_data, 0, this.data, 0, clen);
   }
-  caml_blit_bytes(buf, pos, this.data, offset, len);
+  caml_blit_string(buf, pos, this.data, offset, len);
   return 0
 }
 MlFakeFile.prototype.read = function(offset,buf,pos,len){

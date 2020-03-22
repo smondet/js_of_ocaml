@@ -43,6 +43,6 @@ let%expect_test "static eval of string get" =
   print_var_decl program "bx";
   [%expect
     {|
-    var ex = call_with_char(caml_string_get(constant,- 10));
+    var ex = call_with_char(caml_string_get("abcdefghijklmnopqrstuvwxyz",- 10));
     var ax = call_with_char(103);
-    var bx = call_with_char(caml_string_get(constant,30)); |}]
+    var bx = call_with_char(caml_string_get("abcdefghijklmnopqrstuvwxyz",30)); |}]
