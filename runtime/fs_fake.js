@@ -19,7 +19,7 @@
 
 //Provides: MlFakeDevice
 //Requires: MlFakeFile, caml_create_bytes
-//Requires: caml_raise_sys_error, caml_raise_no_such_file, caml_new_string, caml_string_of_array, caml_bytes_of_string
+//Requires: caml_raise_sys_error, caml_raise_no_such_file, caml_string_of_jsbytes, caml_string_of_array, caml_bytes_of_string
 //Requires: MlBytes
 function MlFakeDevice (root, f) {
   this.content={};
@@ -31,7 +31,7 @@ MlFakeDevice.prototype.nm = function(name) {
 }
 MlFakeDevice.prototype.lookup = function(name) {
   if(!this.content[name] && this.lookupFun) {
-    var res = this.lookupFun(caml_new_string(this.root), caml_new_string(name));
+    var res = this.lookupFun(caml_string_of_jsbytes(this.root), caml_string_of_jsbytes(name));
     if(res !== 0) this.content[name]=new MlFakeFile(caml_bytes_of_string(res[1]));
   }
 }
@@ -100,12 +100,8 @@ MlFakeDevice.prototype.register= function (name,content){
     this.content[name] = new MlFakeFile(content);
   else if(content instanceof Array)
     this.content[name] = new MlFakeFile(caml_string_of_array(content));
-  else if(typeof content == "string") {
-    var bytes = caml_bytes_of_string(content);
-    this.content[name] = new MlFakeFile(bytes);
-  }
   else if(content.toString) {
-    var bytes = caml_bytes_of_string(content.toString());
+    var bytes = caml_bytes_of_string(caml_string_of_jsbytes(content.toString()));
     this.content[name] = new MlFakeFile(bytes);
   }
   else caml_raise_sys_error(this.nm(name) + " : registering file with invalid content type");

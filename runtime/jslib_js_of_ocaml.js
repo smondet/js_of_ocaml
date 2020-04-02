@@ -27,11 +27,7 @@ function caml_js_to_bool(x) { return +x; }
 function caml_js_from_float(x) { return x; }
 //Provides: caml_js_to_float const (const)
 function caml_js_to_float(x) { return x; }
-//Provides: caml_js_from_string mutable (const)
-//Requires: caml_is_ascii, caml_utf16_of_utf8
-function caml_js_from_string(s) {
-    if(caml_is_ascii(s)) return s;
-    return caml_utf16_of_utf8(s); }
+
 //Provides: caml_js_from_array mutable (shallow)
 //Requires: raw_array_sub
 function caml_js_from_array(a) { return raw_array_sub(a,1,a.length-1); }
@@ -39,11 +35,6 @@ function caml_js_from_array(a) { return raw_array_sub(a,1,a.length-1); }
 //Requires: raw_array_cons
 function caml_js_to_array(a) { return raw_array_cons(a,0); }
 
-//Provides: caml_js_to_byte_string const
-function caml_js_to_byte_string(x) { return x }
-
-//Provides: caml_jsbytes_of_string const
-function caml_jsbytes_of_string(x) { return x }
 
 //Provides: caml_js_var mutable (const)
 //Requires: js_print_stderr

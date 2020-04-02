@@ -102,6 +102,11 @@ let name t v nm_orig =
       | "", _ -> "symbol"
       | str, _ -> str
     in
+    (* protect against large names *)
+    let max_len = 20 in
+    let str =
+      if String.length str > max_len then String.sub str ~pos:0 ~len:max_len else str
+    in
     name_raw t v str)
 
 let get_name t v = try Some (Hashtbl.find t.names v) with Not_found -> None

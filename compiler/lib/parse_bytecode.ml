@@ -2518,7 +2518,11 @@ let predefined_exceptions () =
         let v_name_js = Var.fresh () in
         let v_index = Var.fresh () in
         [ Let (v_name, Constant (String name))
-        ; Let (v_name_js, Constant (IString name))
+        ; Let
+            ( v_name_js
+            , if Config.Flag.use_js_string ()
+              then Constant (IString name)
+              else Prim (Extern "caml_jsstring_of_string", [ Pc (IString name) ]) )
         ; Let (v_index, Constant (Int (Int32.of_int (-index))))
         ; Let (exn, Block (248, [| v_name; v_index |], NotArray))
         ; Let

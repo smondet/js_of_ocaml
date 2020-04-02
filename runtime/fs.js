@@ -65,12 +65,12 @@ if (fs_node_supported()) {
 jsoo_mount_point.push({path:caml_root+"static/", device:new MlFakeDevice(caml_root+"static/")});
 
 //Provides:caml_list_mount_point
-//Requires: jsoo_mount_point, caml_new_string
+//Requires: jsoo_mount_point, caml_string_of_jsbytes
 function caml_list_mount_point(){
   var prev = 0
   for(var i = 0; i < jsoo_mount_point.length; i++){
     var old = prev;
-    prev = [0, caml_new_string(jsoo_mount_point[i].path), old]
+    prev = [0, caml_string_of_jsbytes(jsoo_mount_point[i].path), old]
   }
   return prev;
 }
@@ -113,9 +113,9 @@ function caml_unmount(name){
 }
 
 //Provides: caml_sys_getcwd
-//Requires: caml_current_dir, caml_new_string
+//Requires: caml_current_dir, caml_string_of_jsbytes
 function caml_sys_getcwd() {
-  return caml_new_string(caml_current_dir);
+  return caml_string_of_jsbytes(caml_current_dir);
 }
 
 //Provides: caml_sys_chdir
@@ -154,7 +154,7 @@ function caml_sys_file_exists (name) {
 }
 
 //Provides: caml_sys_read_directory
-//Requires: caml_new_string
+//Requires: caml_string_of_jsbytes
 //Requires: caml_raise_not_a_dir, resolve_fs_device
 function caml_sys_read_directory(name){
   var root = resolve_fs_device(name);
@@ -162,7 +162,7 @@ function caml_sys_read_directory(name){
   var l = new Array(a.length + 1);
   l[0] = 0;
   for(var i=0;i<a.length;i++)
-    l[i+1] = caml_new_string(a[i]);
+    l[i+1] = caml_string_of_jsbytes(a[i]);
   return l;
 }
 
