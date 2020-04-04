@@ -99,11 +99,12 @@ let name t v nm_orig =
       match str, nm_orig with
       | "", ">>=" -> "symbol_bind"
       | "", ">>|" -> "symbol_map"
+      | "", "^" -> "symbol_concat"
       | "", _ -> "symbol"
       | str, _ -> str
     in
     (* protect against large names *)
-    let max_len = 20 in
+    let max_len = 30 in
     let str =
       if String.length str > max_len then String.sub str ~pos:0 ~len:max_len else str
     in
