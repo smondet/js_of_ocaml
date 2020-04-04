@@ -22,6 +22,7 @@ open Util
 let%expect_test _ =
   let program =
     compile_and_parse
+      ~debug:false
       ~flags:[ "--enable"; "use-js-string" ]
       {|
 external string_length : string -> int = "%string_length"
@@ -40,28 +41,20 @@ let ( ^ ) s1 s2 =
 let here () =
   let a = "a" in
   let b = "b" in
-  print_endline (a ^ a ^ b ^ b)
+  a ^ a ^ b ^ b
+
+let (_ : string) = here ()
     |}
   in
-  print_fun_decl program (Some "symbol_concat");
-  print_fun_decl program (Some "here");
+  print_fun_decl program None;
   [%expect
     {|
-    function symbol_concat(s1,s2)
-     {var
-       l1=caml_ml_string_length(s1),
-       l2=caml_ml_string_length(s2),
-       s=runtime.caml_create_bytes(l1 + l2 | 0);
-      caml_blit_string(s1,0,s,0,l1);
-      caml_blit_string(s2,0,s,l1,l2);
-      return runtime.caml_string_of_bytes(s)}
-    function here(param)
-     {var _a_=symbol_concat(a,symbol_concat(a,symbol_concat(b,b)));
-      return caml_call1(Stdlib[46],_a_)} |}]
+    function _b_(_c_){return cst_a + (cst_a + (cst_b + cst_b))} |}]
 
 let%expect_test _ =
   let program =
     compile_and_parse
+      ~debug:false
       ~flags:[ "--disable"; "use-js-string" ]
       {|
 external string_length : string -> int = "%string_length"
@@ -81,21 +74,14 @@ let ( ^ ) s1 s2 =
 let here () =
   let a = "a" in
   let b = "b" in
-  print_endline (a ^ a ^ b ^ b)
+  a ^ a ^ b ^ b
+
+let (_ : string) = here ()
     |}
   in
-  print_fun_decl program (Some "symbol_concat");
-  print_fun_decl program (Some "here");
+  print_fun_decl program None;
   [%expect
     {|
-    function symbol_concat(s1,s2)
-     {var
-       l1=caml_ml_string_length(s1),
-       l2=caml_ml_string_length(s2),
-       s=runtime.caml_create_bytes(l1 + l2 | 0);
-      caml_blit_string(s1,0,s,0,l1);
-      caml_blit_string(s2,0,s,l1,l2);
-      return runtime.caml_string_of_bytes(s)}
-    function here(param)
-     {var _a_=symbol_concat(a,symbol_concat(a,symbol_concat(b,b)));
-      return caml_call1(Stdlib[46],_a_)} |}]
+    function _b_(_c_)
+     {return caml_string_concat
+              (cst_a,caml_string_concat(cst_a,caml_string_concat(cst_b,cst_b)))} |}]
