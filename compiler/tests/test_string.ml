@@ -25,12 +25,9 @@ let%expect_test _ =
       ~flags:[ "--enable"; "use-js-string" ]
       {|
 external string_length : string -> int = "%string_length"
-external bytes_length : bytes -> int = "%bytes_length"
 external bytes_create : int -> bytes = "caml_create_bytes"
 external string_blit : string -> int -> bytes -> int -> int -> unit
                      = "caml_blit_string" [@@noalloc]
-external bytes_blit : bytes -> int -> bytes -> int -> int -> unit
-                        = "caml_blit_bytes" [@@noalloc]
 external bytes_unsafe_to_string : bytes -> string = "%bytes_to_string"
 
 let ( ^ ) s1 s2 =
@@ -39,9 +36,15 @@ let ( ^ ) s1 s2 =
   string_blit s1 0 s 0 l1;
   string_blit s2 0 s l1 l2;
   bytes_unsafe_to_string s
+
+let here () =
+  let a = "a" in
+  let b = "b" in
+  print_endline (a ^ a ^ b ^ b)
     |}
   in
   print_fun_decl program (Some "symbol_concat");
+  print_fun_decl program (Some "here");
   [%expect
     {|
     function symbol_concat(s1,s2)
@@ -51,7 +54,10 @@ let ( ^ ) s1 s2 =
        s=runtime.caml_create_bytes(l1 + l2 | 0);
       caml_blit_string(s1,0,s,0,l1);
       caml_blit_string(s2,0,s,l1,l2);
-      return runtime.caml_string_of_bytes(s)} |}]
+      return runtime.caml_string_of_bytes(s)}
+    function here(param)
+     {var _a_=symbol_concat(a,symbol_concat(a,symbol_concat(b,b)));
+      return caml_call1(Stdlib[46],_a_)} |}]
 
 let%expect_test _ =
   let program =
@@ -59,12 +65,10 @@ let%expect_test _ =
       ~flags:[ "--disable"; "use-js-string" ]
       {|
 external string_length : string -> int = "%string_length"
-external bytes_length : bytes -> int = "%bytes_length"
 external bytes_create : int -> bytes = "caml_create_bytes"
 external string_blit : string -> int -> bytes -> int -> int -> unit
                      = "caml_blit_string" [@@noalloc]
-external bytes_blit : bytes -> int -> bytes -> int -> int -> unit
-                        = "caml_blit_bytes" [@@noalloc]
+
 external bytes_unsafe_to_string : bytes -> string = "%bytes_to_string"
 
 let ( ^ ) s1 s2 =
@@ -73,9 +77,15 @@ let ( ^ ) s1 s2 =
   string_blit s1 0 s 0 l1;
   string_blit s2 0 s l1 l2;
   bytes_unsafe_to_string s
+
+let here () =
+  let a = "a" in
+  let b = "b" in
+  print_endline (a ^ a ^ b ^ b)
     |}
   in
   print_fun_decl program (Some "symbol_concat");
+  print_fun_decl program (Some "here");
   [%expect
     {|
     function symbol_concat(s1,s2)
@@ -85,4 +95,7 @@ let ( ^ ) s1 s2 =
        s=runtime.caml_create_bytes(l1 + l2 | 0);
       caml_blit_string(s1,0,s,0,l1);
       caml_blit_string(s2,0,s,l1,l2);
-      return runtime.caml_string_of_bytes(s)} |}]
+      return runtime.caml_string_of_bytes(s)}
+    function here(param)
+     {var _a_=symbol_concat(a,symbol_concat(a,symbol_concat(b,b)));
+      return caml_call1(Stdlib[46],_a_)} |}]
